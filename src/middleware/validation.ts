@@ -36,7 +36,7 @@ export const forgotPasswordSchema = Joi.object({
   }),
 });
 
-export const resetPasswordSchema = Joi.object({
+export const resetForgotPasswordSchema = Joi.object({
   email: Joi.string().email().required().messages({
     'string.empty': 'Email is required',
     'string.email': 'Please provide a valid email address',
@@ -44,6 +44,23 @@ export const resetPasswordSchema = Joi.object({
   resetCode: Joi.string().length(6).required().messages({
     'string.empty': 'Reset code is required',
     'string.length': 'Reset code must be exactly 6 digits',
+  }),
+  newPassword: Joi.string().min(8).max(128).required().messages({
+    'string.empty': 'New password is required',
+    'string.min': 'New password must be at least 8 characters long',
+    'string.max': 'New password cannot exceed 128 characters',
+  }),
+});
+
+export const resetPasswordSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'string.empty': 'Email is required',
+    'string.email': 'Please provide a valid email address',
+  }),
+  password: Joi.string().min(8).max(128).required().messages({
+    'string.empty': 'Password is required',
+    'string.min': 'Password must be at least 8 characters long',
+    'string.max': 'Password cannot exceed 128 characters',
   }),
   newPassword: Joi.string().min(8).max(128).required().messages({
     'string.empty': 'New password is required',

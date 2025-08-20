@@ -1,9 +1,13 @@
-import { Request, Response } from 'express';
-import { hashPassword, comparePassword, generateToken } from '../services/authService';
-import { sendResetCodeEmail } from '../services/emailService';
-import { sendResponse, generateResetCode } from '../utils/helpers';
-import { AuthRequest } from '../types';
-import prisma from '../utils/database';
+import { Request, Response } from "express";
+import {
+  hashPassword,
+  comparePassword,
+  generateToken,
+} from "../services/authService";
+import { sendResetCodeEmail } from "../services/emailService";
+import { sendResponse, generateResetCode } from "../utils/helpers";
+import { AuthRequest } from "../types";
+import prisma from "../utils/database";
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -14,7 +18,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (existingUser) {
-      sendResponse(res, 400, false, 'User already exists with this email');
+      sendResponse(res, 400, false, "User already exists with this email");
       return;
     }
 
@@ -40,13 +44,13 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       name: user.name,
     });
 
-    sendResponse(res, 201, true, 'User created successfully', {
+    sendResponse(res, 201, true, "User created successfully", {
       user,
       token,
     });
   } catch (error) {
-    console.error('Signup error:', error);
-    sendResponse(res, 500, false, 'Internal server error during signup');
+    console.error("Signup error:", error);
+    sendResponse(res, 500, false, "Internal server error during signup");
   }
 };
 
@@ -59,14 +63,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!user) {
-      sendResponse(res, 401, false, 'Invalid email or password');
+      sendResponse(res, 401, false, "Invalid email or password");
       return;
     }
 
     const isPasswordValid = await comparePassword(password, user.password);
 
     if (!isPasswordValid) {
-      sendResponse(res, 401, false, 'Invalid email or password');
+      sendResponse(res, 401, false, "Invalid email or password");
       return;
     }
 
@@ -76,7 +80,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       name: user.name,
     });
 
-    sendResponse(res, 200, true, 'Login successful', {
+    sendResponse(res, 200, true, "Login successful", {
       user: {
         id: user.id,
         name: user.name,
@@ -86,12 +90,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       token,
     });
   } catch (error) {
-    console.error('Login error:', error);
-    sendResponse(res, 500, false, 'Internal server error during login');
+    console.error("Login error:", error);
+    sendResponse(res, 500, false, "Internal server error during login");
   }
 };
 
-export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+export const forgotPassword = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { email } = req.body;
 
@@ -100,7 +107,12 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     });
 
     if (!user) {
-      sendResponse(res, 200, true, 'If the email exists, a reset code will be sent');
+      sendResponse(
+        res,
+        200,
+        true,
+        "If the email exists, a reset code will be sent"
+      );
       return;
     }
 
@@ -117,14 +129,22 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 
     await sendResetCodeEmail(email, resetCode, user.name);
 
-    sendResponse(res, 200, true, 'Reset code sent to your email');
+    sendResponse(res, 200, true, "Reset code sent to your email");
   } catch (error) {
-    console.error('Forgot password error:', error);
-    sendResponse(res, 500, false, 'Internal server error during password reset');
+    console.error("Forgot password error:", error);
+    sendResponse(
+      res,
+      500,
+      false,
+      "Internal server error during password reset"
+    );
   }
 };
 
-export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+export const resetforgotPassword = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { email, resetCode, newPassword } = req.body;
 
@@ -139,7 +159,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     });
 
     if (!user) {
-      sendResponse(res, 400, false, 'Invalid or expired reset code');
+      sendResponse(res, 400, false, "Invalid or expired reset code");
       return;
     }
 
@@ -154,17 +174,25 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
       },
     });
 
-    sendResponse(res, 200, true, 'Password reset successfully');
+    sendResponse(res, 200, true, "Password reset successfully");
   } catch (error) {
-    console.error('Reset password error:', error);
-    sendResponse(res, 500, false, 'Internal server error during password reset');
+    console.error("Reset password error:", error);
+    sendResponse(
+      res,
+      500,
+      false,
+      "Internal server error during password reset"
+    );
   }
 };
 
-export const getCurrentUser = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getCurrentUser = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      sendResponse(res, 401, false, 'User not authenticated');
+      sendResponse(res, 401, false, "User not authenticated");
       return;
     }
 
@@ -185,18 +213,71 @@ export const getCurrentUser = async (req: AuthRequest, res: Response): Promise<v
     });
 
     if (!user) {
-      sendResponse(res, 404, false, 'User not found');
+      sendResponse(res, 404, false, "User not found");
       return;
     }
 
-    sendResponse(res, 200, true, 'User retrieved successfully', {
+    sendResponse(res, 200, true, "User retrieved successfully", {
       user: {
         ...user,
         totalCustomers: user._count.customers,
       },
     });
   } catch (error) {
-    console.error('Get current user error:', error);
-    sendResponse(res, 500, false, 'Internal server error while fetching user');
+    console.error("Get current user error:", error);
+    sendResponse(res, 500, false, "Internal server error while fetching user");
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email, password, newPassword } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      sendResponse(res, 404, false, "User not found");
+      return;
+    }
+
+    const isPasswordValid = await comparePassword(password, user.password);
+
+    if (!isPasswordValid) {
+      sendResponse(res, 401, false, "Invalid password");
+      return;
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    sendResponse(res, 200, true, "Password reset successfully");
+  } catch (error) {
+    console.error("Reset password error:", error);
+    sendResponse(
+      res,
+      500,
+      false,
+      "Internal server error during password reset"
+    );
+  }
+};
+
+export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    sendResponse(res, 200, true, "User logged out successfully");
+  } catch (error) {
+    console.error("Logout error:", error);
+    sendResponse(res, 500, false, "Internal server error during logout");
   }
 };

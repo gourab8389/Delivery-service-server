@@ -2,14 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../services/authService';
 import { sendResponse } from '../utils/helpers';
 import prisma from '../utils/database';
-
-interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    name: string;
-  };
-}
+import { AuthRequest } from '../types';
 
 export const authenticateToken = async (
   req: AuthRequest,
