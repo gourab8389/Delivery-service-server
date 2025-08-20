@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
 import { sendResponse } from '../utils/helpers';
 
-// User validation schemas
 export const signupSchema = Joi.object({
   name: Joi.string().min(2).max(50).required().messages({
     'string.empty': 'Name is required',
@@ -53,7 +52,6 @@ export const resetPasswordSchema = Joi.object({
   }),
 });
 
-// Customer validation schemas
 export const createCustomerSchema = Joi.object({
   name: Joi.string().min(2).max(100).required().messages({
     'string.empty': 'Customer name is required',
@@ -69,15 +67,39 @@ export const createCustomerSchema = Joi.object({
     'string.min': 'Customer number must be at least 10 characters long',
     'string.max': 'Customer number cannot exceed 15 characters',
   }),
-  address: Joi.string().min(1).max(500).required().messages({
-    'string.empty': 'Customer address is required',
-    'string.min': 'Customer address must be at least 1 character long',
-    'string.max': 'Customer address cannot exceed 500 characters',
+  street: Joi.string().min(5).max(200).required().messages({
+    'string.empty': 'Street address is required',
+    'string.min': 'Street address must be at least 5 characters long',
+    'string.max': 'Street address cannot exceed 200 characters',
   }),
-  bankDetails: Joi.string().min(5).max(200).required().messages({
-    'string.empty': 'Bank details are required',
-    'string.min': 'Bank details must be at least 5 characters long',
-    'string.max': 'Bank details cannot exceed 200 characters',
+  city: Joi.string().min(2).max(50).required().messages({
+    'string.empty': 'City is required',
+    'string.min': 'City must be at least 2 characters long',
+    'string.max': 'City cannot exceed 50 characters',
+  }),
+  state: Joi.string().min(2).max(50).required().messages({
+    'string.empty': 'State is required',
+    'string.min': 'State must be at least 2 characters long',
+    'string.max': 'State cannot exceed 50 characters',
+  }),
+  pinCode: Joi.string().min(5).max(10).required().messages({
+    'string.empty': 'Pin code is required',
+    'string.min': 'Pin code must be at least 5 characters long',
+    'string.max': 'Pin code cannot exceed 10 characters',
+  }),
+  country: Joi.string().min(2).max(50).required().messages({
+    'string.empty': 'Country is required',
+    'string.min': 'Country must be at least 2 characters long',
+    'string.max': 'Country cannot exceed 50 characters',
+  }),
+  documentType: Joi.string().valid('AADHAR', 'PAN', 'PASSPORT', 'LICENCE').required().messages({
+    'string.empty': 'Document type is required',
+    'any.only': 'Document type must be one of: AADHAR, PAN, PASSPORT, LICENCE',
+  }),
+  cardNumber: Joi.string().min(6).max(20).required().messages({
+    'string.empty': 'Card number is required',
+    'string.min': 'Card number must be at least 6 characters long',
+    'string.max': 'Card number cannot exceed 20 characters',
   }),
 });
 
@@ -85,13 +107,22 @@ export const updateCustomerSchema = Joi.object({
   name: Joi.string().min(2).max(100).optional(),
   email: Joi.string().email().optional(),
   number: Joi.string().min(10).max(15).optional(),
-  address: Joi.string().min(1).max(500).optional(),
-  bankDetails: Joi.string().min(5).max(200).optional(),
+  street: Joi.string().min(5).max(200).optional(),
+  city: Joi.string().min(2).max(50).optional(),
+  state: Joi.string().min(2).max(50).optional(),
+  pinCode: Joi.string().min(5).max(10).optional(),
+  country: Joi.string().min(2).max(50).optional(),
 }).min(1).messages({
   'object.min': 'At least one field must be provided for update',
 });
 
-// Generic validation middleware
+export const updateDocumentSchema = Joi.object({
+  documentType: Joi.string().valid('AADHAR', 'PAN', 'PASSPORT', 'LICENCE').optional(),
+  cardNumber: Joi.string().min(6).max(20).optional(),
+}).min(1).messages({
+  'object.min': 'At least one field must be provided for document update',
+});
+
 export const validate = (schema: Joi.ObjectSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body, { abortEarly: false });
