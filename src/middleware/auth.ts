@@ -1,8 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../services/authService';
 import { sendResponse } from '../utils/helpers';
-import { AuthRequest } from '../types';
 import prisma from '../utils/database';
+
+interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+  };
+}
 
 export const authenticateToken = async (
   req: AuthRequest,
@@ -10,7 +17,7 @@ export const authenticateToken = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authHeader = req.headers['authorization'] as string | undefined;
+    const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
