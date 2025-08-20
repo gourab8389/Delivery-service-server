@@ -3,6 +3,7 @@ import { verifyToken } from '../services/authService';
 import { sendResponse } from '../utils/helpers';
 import prisma from '../utils/database';
 import { AuthRequest } from '../types';
+import { validateUserSession } from '../services/sessionService';
 
 export const authenticateToken = async (
   req: AuthRequest,
@@ -20,32 +21,29 @@ export const authenticateToken = async (
 
     const decoded = verifyToken(token);
     
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-      select: { id: true, email: true, name: true }
-    });
+    // Validate session with device fingerprint
+    const session = await validateUserSession(token, req);
 
-    if (!user) {
-      sendResponse(res, 401, false, 'Invalid token - user not found');
+    if (!session) {
+      sendResponse(res, 401, false, 'Invalid token or device session');
       return;
     }
 
-    req.user = user;
+    // Update last used time
+    await prisma.userSession.update({
+      where: { id: session.id },
+      data: { lastUsedAt: new Date() },
+    });
+
+    req.user = {
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.name,
+    };
+    
     next();
   } catch (error) {
     console.error('Authentication error:', error);
-    
-    if (error instanceof Error) {
-      if (error.name === 'JsonWebTokenError') {
-        sendResponse(res, 401, false, 'Invalid token');
-        return;
-      }
-      if (error.name === 'TokenExpiredError') {
-        sendResponse(res, 401, false, 'Token expired');
-        return;
-      }
-    }
-    
     sendResponse(res, 401, false, 'Authentication failed');
   }
 };

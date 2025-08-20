@@ -18,8 +18,25 @@ model User {
   updatedAt DateTime @updatedAt
   
   customers Customer[]
+  sessions  UserSession[]
 
   @@map("users")
+}
+
+model UserSession {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  deviceFingerprint String
+  userAgent    String?
+  ipAddress    String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_sessions")
 }
 
 model Customer {

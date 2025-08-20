@@ -8,6 +8,7 @@ import { sendResetCodeEmail } from "../services/emailService";
 import { sendResponse, generateResetCode } from "../utils/helpers";
 import { AuthRequest } from "../types";
 import prisma from "../utils/database";
+import { createUserSession } from "../services/sessionService";
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -44,6 +45,9 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       name: user.name,
     });
 
+    // Create session with device tracking
+    await createUserSession(user.id, token, req);
+
     sendResponse(res, 201, true, "User created successfully", {
       user,
       token,
@@ -79,6 +83,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       email: user.email,
       name: user.name,
     });
+
+    // Create session with device tracking
+    await createUserSession(user.id, token, req);
 
     sendResponse(res, 200, true, "Login successful", {
       user: {
