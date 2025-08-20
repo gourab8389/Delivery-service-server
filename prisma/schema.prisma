@@ -1,12 +1,3 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 model User {
   id        String   @id @default(cuid())
   name      String
@@ -28,7 +19,7 @@ model Customer {
   email       String
   number      String
   address     Address?
-  bankDetails String
+  documents   Document[]
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
@@ -37,18 +28,39 @@ model Customer {
   @@map("customers")
 }
 
-
 model Address {
-  id        String   @id @default(cuid())
-  street    String
-  city      String
-  state     String
-  pinCode   String
-  country   String
-  customerId String @unique
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  street     String
+  city       String
+  state      String
+  pinCode    String
+  country    String
+  customerId String   @unique
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@map("addresses")
+}
+
+model Document {
+  id         String      @id @default(cuid())
+  type       DocumentType
+  cardNumber String
+  fileName   String
+  filePath   String
+  fileSize   Int
+  customerId String
+  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@map("documents")
+}
+
+enum DocumentType {
+  AADHAR
+  PAN
+  PASSPORT
+  LICENCE
 }

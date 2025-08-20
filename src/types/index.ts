@@ -33,7 +33,7 @@ export interface ResetPasswordData {
   newPassword: string;
 }
 
-export interface Address {
+export interface AddressData {
   street: string;
   city: string;
   state: string;
@@ -41,20 +41,31 @@ export interface Address {
   country: string;
 }
 
+export interface DocumentData {
+  type: 'AADHAR' | 'PAN' | 'PASSPORT' | 'LICENCE';
+  cardNumber: string;
+  file?: Express.Multer.File;
+}
+
 export interface CustomerData {
   name: string;
   email: string;
   number: string;
-  address: Address;
-  bankDetails: string;
+  address: AddressData;
+  document: DocumentData;
 }
 
 export interface UpdateCustomerData {
   name?: string;
   email?: string;
   number?: string;
-  address?: string;
-  bankDetails?: string;
+  address?: Partial<AddressData>;
+}
+
+export interface UpdateDocumentData {
+  type?: 'AADHAR' | 'PAN' | 'PASSPORT' | 'LICENCE';
+  cardNumber?: string;
+  file?: Express.Multer.File;
 }
 
 export interface ApiResponse<T = any> {
@@ -62,4 +73,21 @@ export interface ApiResponse<T = any> {
   message: string;
   data?: T;
   error?: string;
+}
+
+export interface PaginationOptions {
+  page: number;
+  limit: number;
+  search?: string;
+}
+
+export interface PaginationResponse<T> {
+  data: T[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
